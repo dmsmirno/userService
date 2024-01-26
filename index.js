@@ -33,7 +33,7 @@ app.use(session({
 app.use('/', userRoutes);
 
 // Start the server
-const port = 3001;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`User Service is running on port ${port}`);
 });
