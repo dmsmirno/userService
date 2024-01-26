@@ -1,13 +1,10 @@
 
 // Import required modules
 const express = require('express');
-const axios = require('axios');
 const session = require("express-session");
-const redis = require("redis");
 const RedisStore = require("connect-redis").default;
 const redisClient = require('./utils/redis.js');
 const WebSocket = require('ws');
-const tmdbService = require('./services/tmdbService');
 const { v4: uuidv4 } = require('uuid');
 
 require('dotenv').config();
