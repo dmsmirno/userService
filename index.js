@@ -34,12 +34,12 @@ app.use('/', userRoutes);
 
 // Start the server
 const port = process.env.PORT || 3001;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`User Service is running on port ${port}`);
 });
 
 // Create a WebSocket server
-const wss = new WebSocket.Server({ port: process.env.PORT || 8081 });
+const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
   ws.id = uuidv4(); // Assign a unique ID to the WebSocket connection
