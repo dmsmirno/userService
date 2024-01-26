@@ -12,6 +12,9 @@
     "authentication",
     "Letterboxd API"
   ],
+  "engines": {
+    "node": "v16.16.0"
+  },
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
