@@ -19,7 +19,7 @@ controller.get('/favorites', async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
       const sessionId = authHeader && authHeader.split(' ')[1];
-      const movies = await tmdbService.getFavorites(sessionId);
+      const movies = await tmdbService.getFavorites(sessionId.replace(/"/g, ''));
       res.json(movies);
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -28,9 +28,9 @@ controller.get('/favorites', async (req, res) => {
   
 controller.get('/watchlist', async (req, res) => {
     try {
-      const authHeader = req.headers.authorization;
+      const authHeader = req.headers.authorization;    
       const sessionId = authHeader && authHeader.split(' ')[1];
-      const movies = await tmdbService.getWatchlist(sessionId);
+      const movies = await tmdbService.getWatchlist(sessionId.replace(/"/g, ''));
       res.json(movies);
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -42,7 +42,7 @@ controller.get('/custom-lists', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     const sessionId = authHeader && authHeader.split(' ')[1];
-    const lists = await tmdbService.getCustomLists(sessionId);
+    const lists = await tmdbService.getCustomLists(sessionId.replace(/"/g, ''));
     res.json(lists);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -54,7 +54,7 @@ controller.get('/custom-list-content', async (req, res) => {
     const authHeader = req.headers.authorization;
     const sessionId = authHeader && authHeader.split(' ')[1];
     const customSelection = req.query.customSelection;
-    const movies = await tmdbService.getCustomListContent(sessionId, customSelection);
+    const movies = await tmdbService.getCustomListContent(sessionId.replace(/"/g, ''), customSelection);
     res.json(movies);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -66,7 +66,7 @@ controller.post('/create-party', async (req, res) => {
     const authHeader = req.headers.authorization;
     const sessionId = authHeader && authHeader.split(' ')[1];
     const movies = req.body.movies;
-    const partyId = await tmdbService.createParty(sessionId, movies);
+    const partyId = await tmdbService.createParty(sessionId.replace(/"/g, ''), movies);
     res.json({ partyId });
   } catch (err) {
     res.status(500).json({ message: err.message });

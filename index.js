@@ -44,7 +44,7 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
   ws.id = uuidv4(); // Assign a unique ID to the WebSocket connection
   ws.on('message', async (message) => { // Mark this function as async
-    const { type, partyId, movieId, sessionId } = JSON.parse(message);
+    const { type, partyId, movieId } = JSON.parse(message);
     switch (type) {
       case 'JOIN_PARTY': {
         const partyExists = await redisClient.exists(partyId);
@@ -61,7 +61,7 @@ wss.on('connection', (ws) => {
           status: await redisClient.hGet(partyId, 'status'),
         };
 
-        party.users.push(ws.id); 
+        party.users.push(ws.id);
         await redisClient.hSet(partyId, 'users', JSON.stringify(party.users));
 
         // Add the partyId to the client's parties
@@ -90,9 +90,9 @@ wss.on('connection', (ws) => {
             client.send(JSON.stringify({ type: 'UPDATE_USERS', users: updatedUsers.length, party: partyData }));
           }
         });
-        
+
         break;
-        
+
       }
       case 'CAST_VOTE': {
         // Update the vote count in Redis
@@ -119,7 +119,7 @@ wss.on('connection', (ws) => {
             client.send(JSON.stringify({ type: 'UPDATE_VOTES', votes: party.votes }));
           }
         });
-       
+
         break;
       }
 
@@ -147,7 +147,7 @@ wss.on('connection', (ws) => {
             client.send(JSON.stringify({ type: 'START_PARTY', partyId }));
           }
         });
-        
+
         break;
       }
       case 'PREPARE_PARTY': {
@@ -160,7 +160,7 @@ wss.on('connection', (ws) => {
           status: await redisClient.hGet(partyId, 'status'),
           users: JSON.parse(await redisClient.hGet(partyId, 'users')),
         };
-        if(party.status === 'notStarted') {
+        if (party.status === 'notStarted') {
           // Fetch ttl
           const ttl = await redisClient.ttl(partyId);
           party.status = 'prepared';
@@ -174,7 +174,7 @@ wss.on('connection', (ws) => {
               const party = {
                 users: JSON.parse(await redisClient.hGet(partyId, 'users')),
               };
-          
+
               party.users.forEach(userId => {
                 const client = [...wss.clients].find(client => client.id === userId);
                 if (client && client.readyState === WebSocket.OPEN) {
@@ -182,7 +182,7 @@ wss.on('connection', (ws) => {
                 }
               });
             }
-          }, (ttl-1) * 1000); // ttl is in seconds, but setTimeout expects milliseconds 
+          }, (ttl - 1) * 1000); // ttl is in seconds, but setTimeout expects milliseconds 
         }
         break;
       }
@@ -192,21 +192,21 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({ type: 'ERROR', message: 'Party does not exist' }));
           return;
         }
-        
+
         setTimeout(async () => {
           const party = {
             users: JSON.parse(await redisClient.hGet(partyId, 'users')),
           };
-          if(!party.users || party.users.length === 0) {
+          if (!party.users || party.users.length === 0) {
             return;
           }
 
-          const client = [...wss.clients].find(client => client.id === party.users[0]); 
+          const client = [...wss.clients].find(client => client.id === party.users[0]);
           if (client && client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({ type: 'MAKE_OWNER', partyId }));
           }
         }, 3000);
-        
+
       }
       default:
         // Handle unknown type
@@ -219,8 +219,8 @@ wss.on('connection', (ws) => {
     if (ws.parties) {
       ws.parties.forEach(async (partyId) => {
         const partyExists = await redisClient.exists(partyId);
-        
-        if(partyExists) {
+
+        if (partyExists) {
           const party = {
             users: JSON.parse(await redisClient.hGet(partyId, 'users')),
             movies: JSON.parse(await redisClient.hGet(partyId, 'movies')),
@@ -230,7 +230,7 @@ wss.on('connection', (ws) => {
           // Remove the user from the party in Redis
           party.users = party.users.filter(userId => userId !== ws.id);
           await redisClient.hSet(partyId, 'users', JSON.stringify(party.users));
-               
+
           // Send the updated list of users to all clients
           if (party.users.length === 0) {
             await redisClient.del(partyId);
